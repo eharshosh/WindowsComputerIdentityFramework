@@ -14,18 +14,6 @@ namespace WindowsComputerIdentityFramework
     /// </summary>
     public class ComputerFingerPrintCalculator
     {
-        [Flags]
-        public enum FingerPrintProviders
-        {
-            VideoCardDriver = 1,
-            Processor = 2,
-            Bios = 4,
-            SystemDisk = 8,
-            FirstEnabledNicMac = 16,
-            BaseBoard = 32,
-            All = VideoCardDriver | FirstEnabledNicMac | Processor | Bios | SystemDisk | BaseBoard
-        }
-
         public string Compute(FingerPrintProviders providerFlags = FingerPrintProviders.All)
         {
             var rawData = "";
