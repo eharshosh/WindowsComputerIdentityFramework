@@ -1,8 +1,7 @@
 ﻿using System;
 using System.Diagnostics;
-using System.Linq;
 
-namespace ComputerUniqueIdentifier
+namespace WindowsComputerIdentityFramework
 {
     class Program
     {
@@ -14,8 +13,8 @@ namespace ComputerUniqueIdentifier
             var c = new ComputerFingerPrintCalculator();
             var idHash = c.Compute();
             var salted = c.ComputeWithSalt(HardCodedSalt);
-            Console.WriteLine($"Raw:\t{idHash}");
-            Console.WriteLine($"Salted:\t{salted}");
+            Console.WriteLine("Raw:\t" + idHash);
+            Console.WriteLine($"Salted:\t" + salted);
             Console.WriteLine(sw.Elapsed);
             Console.Read();
         }

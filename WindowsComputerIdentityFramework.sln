@@ -3,7 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 14
 VisualStudioVersion = 14.0.23107.0
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ComputerUniqueIdentifier", "ComputerUniqueIdentifier\ComputerUniqueIdentifier.csproj", "{B5AF3321-C2A4-4C3C-A557-3B1949E1512E}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WindowsComputerIdentityFramework", "WindowsComputerIdentityFramework\WindowsComputerIdentityFramework.csproj", "{B5AF3321-C2A4-4C3C-A557-3B1949E1512E}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

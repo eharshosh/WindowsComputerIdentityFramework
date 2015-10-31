@@ -5,8 +5,9 @@ using System;
 using System.IO;
 using System.Security;
 using System.Linq;
+using System.Collections.Generic;
 
-namespace ComputerUniqueIdentifier
+namespace WindowsComputerIdentityFramework
 {
     /// <summary>
     /// based on this comment: http://stackoverflow.com/a/16284893
@@ -17,44 +18,44 @@ namespace ComputerUniqueIdentifier
         public enum FingerPrintProviders
         {
             VideoCardDriver = 1,
-            FirstProcessorInfo = 2,
-            BiosInfo = 4,
-            DiskInfo = 8,
-            FirstNicMac = 16,
-            BaseBoardInfo = 32,
-            All = VideoCardDriver | FirstNicMac | FirstProcessorInfo | BiosInfo | DiskInfo | BaseBoardInfo
+            Processor = 2,
+            Bios = 4,
+            SystemDisk = 8,
+            FirstEnabledNicMac = 16,
+            BaseBoard = 32,
+            All = VideoCardDriver | FirstEnabledNicMac | Processor | Bios | SystemDisk | BaseBoard
         }
 
         public string Compute(FingerPrintProviders providerFlags = FingerPrintProviders.All)
         {
             var rawData = "";
-            if (providerFlags.HasFlag(FingerPrintProviders.FirstProcessorInfo))
+            if ((providerFlags | FingerPrintProviders.Processor) == providerFlags)
             {
                 rawData += GenerateCpuFingerprint();
             }
-            if (providerFlags.HasFlag(FingerPrintProviders.BiosInfo))
+            if ((providerFlags | FingerPrintProviders.Bios) == providerFlags)
             {
                 rawData += GenerateBiosFingerprint();
             }
-            if (providerFlags.HasFlag(FingerPrintProviders.BaseBoardInfo))
+            if ((providerFlags | FingerPrintProviders.BaseBoard) == providerFlags)
             {
                 rawData += GenerateBaseBoardFingerprint();
             }
-            if (providerFlags.HasFlag(FingerPrintProviders.DiskInfo))
+            if ((providerFlags | FingerPrintProviders.SystemDisk) == providerFlags)
             {
                 rawData += GenerateSystemDiskFingerprint();
             }
-            if (providerFlags.HasFlag(FingerPrintProviders.VideoCardDriver))
+            if ((providerFlags | FingerPrintProviders.VideoCardDriver) == providerFlags)
             {
                 rawData += GenerateVideoControllerFingerprint();
             }
-            if (providerFlags.HasFlag(FingerPrintProviders.FirstNicMac))
+            if ((providerFlags | FingerPrintProviders.FirstEnabledNicMac) == providerFlags)
             {
                 rawData += GenerateMacAddressFingerprint();
             }
             if (string.IsNullOrEmpty(rawData))
             {
-                throw new InvalidOperationException("No fingerprint provider was specified or couldn't retreive data from the computer!");
+                throw new SecurityException("No fingerprint provider was specified or couldn't retreive data from the computer!");
             }
             return ButifyHexString(GetHash(rawData));
         }
@@ -66,12 +67,12 @@ namespace ComputerUniqueIdentifier
 
         private string ButifyHexString(string hexStr, int delimitAfter = 5, string delimiter = "-")
         {
-            return string.Concat(
+            return string.Join("",
                 hexStr
                 .Replace("-", "")
                 .Select((chr, chrIdx) =>
                     ((chrIdx % delimitAfter == 0 && chrIdx != 0) ? delimiter : "")
-                    + chr));
+                    + chr).ToArray());
         }
 
         private static string GetHash(string str)
@@ -80,63 +81,72 @@ namespace ComputerUniqueIdentifier
             var computedHash = new SHA1CryptoServiceProvider().ComputeHash(stringBytes);
             return BitConverter.ToString(computedHash);
         }
-        
-        private static string QueryWmi(string wmiClass, string wmiProperty, Func<ManagementBaseObject, bool> filter)
+
+        private static IEnumerable<string> QueryWmi(string wmiClass, params string[] wmiProperties)
         {
             ManagementClass mc = new ManagementClass(wmiClass);
             ManagementObjectCollection moc = mc.GetInstances();
             foreach (ManagementObject mo in moc)
             {
-                if (filter(mo))
+                foreach (var propertyName in wmiProperties)
                 {
-                    try
+                    var value = mo[propertyName];
+                    if (value != null)
                     {
-                        return mo[wmiProperty].ToString();
-                    }
-                    catch
-                    {
+                        yield return value.ToString();
                     }
                 }
+                yield break;
             }
-            return string.Empty;
-        }
-
-        //Return a hardware identifier
-        private static string QueryWmi(string wmiClass, string wmiProperty)
-        {
-            return QueryWmi(wmiClass, wmiProperty, x => true);
         }
 
         private static string GenerateCpuFingerprint()
         {
-            //Uses first CPU identifier available in order of preference
-            //Don't get all identifiers, as it is very time consuming
-            string retVal = QueryWmi("Win32_Processor", "UniqueId");
-            if (retVal == "") //If no UniqueID, use ProcessorID
-            {
-                retVal = QueryWmi("Win32_Processor", "ProcessorId");
-                if (retVal == "") //If no ProcessorId, use Name
-                {
-                    retVal = QueryWmi("Win32_Processor", "Name");
-                    if (retVal == "") //If no Name, use Manufacturer
-                    {
-                        retVal = QueryWmi("Win32_Processor", "Manufacturer");
-                    }
-                    //Add clock speed for extra security
-                    retVal += QueryWmi("Win32_Processor", "MaxClockSpeed");
-                }
-            }
-            return GetHash(retVal);
+            var queryResult = QueryWmi("Win32_Processor", "UniqueId",
+                "ProcessorId", "Name", "Manufacturer", "MaxClockSpeed");
+            return GetHash(string.Join("", queryResult.ToArray()));
         }
-        
+
         private static string GenerateBiosFingerprint()
         {
-            return GetHash(QueryWmi("Win32_BIOS", "Manufacturer")
-            + QueryWmi("Win32_BIOS", "SMBIOSBIOSVersion")
-            + QueryWmi("Win32_BIOS", "IdentificationCode")
-            + QueryWmi("Win32_BIOS", "SerialNumber")
-            + QueryWmi("Win32_BIOS", "ReleaseDate")
-            + QueryWmi("Win32_BIOS", "Version"));
+            var queryResult = QueryWmi("Win32_BIOS",
+                "Manufacturer",
+                "SMBIOSBIOSVersion",
+                "IdentificationCode",
+                "SerialNumber",
+                "ReleaseDate",
+                "Version");
+            return GetHash(string.Join("", queryResult.ToArray()));
+        }
+
+        private static string GenerateBaseBoardFingerprint()
+        {
+            var queryResult = QueryWmi("Win32_BaseBoard", "Model", "Manufacturer", "Name", "SerialNumber");
+            return GetHash(string.Join("", queryResult.ToArray()));
+        }
+
+        private static string GenerateVideoControllerFingerprint()
+        {
+            var queryResult = QueryWmi("Win32_VideoController", "DriverVersion", "Name");
+            return GetHash(string.Join("", queryResult.ToArray()));
+        }
+
+        private static string GenerateMacAddressFingerprint()
+        {
+            ManagementClass mc = new ManagementClass("Win32_NetworkAdapterConfiguration");
+            ManagementObjectCollection moc = mc.GetInstances();
+            foreach (ManagementObject mo in moc)
+            {
+                if (mo["IPEnabled"].ToString() == "True")
+                {
+                    var macAddress = mo["MACAddress"];
+                    if (macAddress != null)
+                    {
+                        return GetHash(macAddress.ToString());
+                    }
+                }
+            }
+            throw new SecurityException("No active network adapters detected!");
         }
 
         private static string GenerateSystemDiskFingerprint()
@@ -174,25 +184,5 @@ namespace ComputerUniqueIdentifier
             }
             throw new SecurityException("The OS disk was not found!");
         }
-
-        private static string GenerateBaseBoardFingerprint()
-        {
-            return GetHash(QueryWmi("Win32_BaseBoard", "Model")
-            + QueryWmi("Win32_BaseBoard", "Manufacturer")
-            + QueryWmi("Win32_BaseBoard", "Name")
-            + QueryWmi("Win32_BaseBoard", "SerialNumber"));
-        }
-
-        private static string GenerateVideoControllerFingerprint()
-        {
-            return GetHash(QueryWmi("Win32_VideoController", "DriverVersion")
-            + QueryWmi("Win32_VideoController", "Name"));
-        }
-
-        private static string GenerateMacAddressFingerprint()
-        {
-            return GetHash(QueryWmi("Win32_NetworkAdapterConfiguration",
-                "MACAddress", mo => mo["IPEnabled"].ToString() == "True"));
-        }        
     }
 }
