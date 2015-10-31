@@ -54,7 +54,7 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\WindowsComputerIdentityFramework\WCIF.csproj">
+    <ProjectReference Include="..\WCIF\WCIF.csproj">
       <Project>{b5af3321-c2a4-4c3c-a557-3b1949e1512e}</Project>
       <Name>WCIF</Name>
     </ProjectReference>
