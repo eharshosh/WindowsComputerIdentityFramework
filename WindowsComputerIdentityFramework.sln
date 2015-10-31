@@ -3,7 +3,9 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 14
 VisualStudioVersion = 14.0.23107.0
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WindowsComputerIdentityFramework", "WindowsComputerIdentityFramework\WindowsComputerIdentityFramework.csproj", "{B5AF3321-C2A4-4C3C-A557-3B1949E1512E}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WCIF", "WindowsComputerIdentityFramework\WCIF.csproj", "{B5AF3321-C2A4-4C3C-A557-3B1949E1512E}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WCIF.Tests", "WCIF.Tests\WCIF.Tests.csproj", "{1440EAA8-6C21-45A8-A3F6-F03672733C7E}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -15,6 +17,10 @@ Global
 		{B5AF3321-C2A4-4C3C-A557-3B1949E1512E}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{B5AF3321-C2A4-4C3C-A557-3B1949E1512E}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{B5AF3321-C2A4-4C3C-A557-3B1949E1512E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{1440EAA8-6C21-45A8-A3F6-F03672733C7E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1440EAA8-6C21-45A8-A3F6-F03672733C7E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1440EAA8-6C21-45A8-A3F6-F03672733C7E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1440EAA8-6C21-45A8-A3F6-F03672733C7E}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

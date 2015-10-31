@@ -50,7 +50,12 @@ namespace WindowsComputerIdentityFramework
 
         public string ComputeWithSalt(string salt)
         {
-            return ButifyHexString(GetHash(Compute() + salt));
+            return Saltify(Compute(), salt);
+        }
+
+        public string Saltify(string original, string salt)
+        {
+            return ButifyHexString(GetHash(original + salt));
         }
 
         private string ButifyHexString(string hexStr, int delimitAfter = 5, string delimiter = "-")
