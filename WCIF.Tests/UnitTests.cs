@@ -21,8 +21,10 @@ namespace WCIF.Tests
             Assert.AreEqual(idHash, idHash2);
             Assert.AreEqual(salted, salted2);
             Assert.AreNotEqual(idHash, salted);
-            Console.WriteLine("Computed (raw):\t" + idHash);
-            Console.WriteLine("Salted:\t" + salted);
+            Console.WriteLine("Computed (raw):");
+            Console.WriteLine(idHash);
+            Console.WriteLine("Salted:");
+            Console.WriteLine(salted);
         }
 
         [TestMethod]
@@ -38,7 +40,7 @@ namespace WCIF.Tests
         {
             var c = new ComputerFingerPrintCalculator();
             var salted = c.ComputeWithSalt(HardCodedSalt);
-            Console.WriteLine("Salted:\t" + salted);
+            Console.WriteLine(salted);
         }
 
         [TestMethod]
